@@ -1,0 +1,69 @@
+// let listaDeCompras = ['Arroz', 'Biscoito', 'Suco'];
+// const listaDeItens = {
+//   item1: 'Biscoito',
+//   item2: 'Suco',
+//   quantidade1: 3,
+//   quantidade2: 4,
+//   mostrarItens: function () {
+//     alert('Comprei ' + listaDeItens.quantidade1 + ' pacotes de ' + listaDeItens.item1)
+//   }
+// };
+
+// listaDeItens.mostrarItens();
+
+let listaDeItens = [];
+
+const form = document.getElementById("form-itens");
+const itensInput = document.getElementById("receber-item");
+const ulItens = document.getElementById("lista-de-itens");
+
+form.addEventListener("submit", function (evento) {
+  evento.preventDefault();
+  salvarItem();
+  mostrarItem();
+});
+
+function salvarItem() {
+  const comprasItem = itensInput.value;
+
+  const checarDuplicado = listaDeItens.some((elemento) => elemento.valor.toUpperCase() === comprasItem.toUpperCase());
+  // some() => Procura se um elemento existe no array
+
+  if (checarDuplicado) {
+    alert("Item ja existe")
+  } else {
+    listaDeItens.push({
+      valor: comprasItem,
+      checar: false,
+    });
+  }
+
+  console.log(listaDeItens);
+}
+
+function mostrarItem() {
+  ulItens.innerHTML = "";
+  listaDeItens.forEach((elemento, index) => {
+    ulItens.innerHTML += `
+      <li class="item-compra is-flex is-justify-content-space-between" data-value="${index}">
+        <div>
+          <input type="checkbox" class="is-clickable" />
+          <input type="text" class="is-size-5" value="${elemento.valor}"></input>
+        </div>
+        <div>
+          <i class="fa-solid fa-trash is-clickable deletar"></i>
+        </div>
+      </li>
+    `;
+  });
+}
+
+const inputCheck = document.querySelectorAll('input[type="checkbox"]');
+
+inputCheck.forEach((i) => {
+  i.addEventListener("click", (evento) => {
+    // parentElement => retorna o elemento pai que esta sendo clicado
+    const valorDoElemento = evento.target.parentElement.parentElement.getAttrribute("data-value");
+    listaDeItens[valorDoElemento].checar = evento.target.checked;
+  });
+});
