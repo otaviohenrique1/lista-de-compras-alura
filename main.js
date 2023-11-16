@@ -12,15 +12,18 @@
 // listaDeItens.mostrarItens();
 
 let listaDeItens = [];
+let itemAEditar;
 
 const form = document.getElementById("form-itens");
 const itensInput = document.getElementById("receber-item");
 const ulItens = document.getElementById("lista-de-itens");
+const ulItensComprados = document.getElementById("itens-comprados");
 
 form.addEventListener("submit", function (evento) {
   evento.preventDefault();
   salvarItem();
   mostrarItem();
+  itensInput.focus(); // Mantem o foco no campo
 });
 
 function salvarItem() {
@@ -38,32 +41,139 @@ function salvarItem() {
     });
   }
 
-  console.log(listaDeItens);
+  // console.log(listaDeItens);
+  itensInput.value = "";
 }
 
-function mostrarItem() {
-  ulItens.innerHTML = "";
+
+function mostrarItem(){
+  ulItens.innerHTML = ''
+  ulItensComprados.innerHTML = ''
+  
   listaDeItens.forEach((elemento, index) => {
-    ulItens.innerHTML += `
-      <li class="item-compra is-flex is-justify-content-space-between" data-value="${index}">
-        <div>
-          <input type="checkbox" class="is-clickable" />
-          <input type="text" class="is-size-5" value="${elemento.valor}"></input>
-        </div>
-        <div>
-          <i class="fa-solid fa-trash is-clickable deletar"></i>
-        </div>
-      </li>
-    `;
+    if(elemento.checar) {
+      ulItensComprados.innerHTML += `
+        <li class="item-compra is-flex is-justify-content-space-between" data-value="${index}">
+          <div>
+            <input type="checkbox" checked class="is-clickable" />  
+            <span class="itens-comprados is-size-5">${elemento.valor}</span>
+          </div>
+          <div>
+            <i class="fa-solid fa-trash is-clickable deletar"></i>
+          </div>
+        </li>
+      `;
+    } else {
+      ulItens.innerHTML += `
+        <li class="item-compra is-flex is-justify-content-space-between" data-value="${index}">
+          <div>
+            <input type="checkbox" class="is-clickable" />
+            <input type="text" class="is-size-5" value="${elemento.valor}" ${(index !== Number(itemAEditar)) ? 'disabled' : ''}></input>
+          </div>
+          <div>
+            ${(index === Number(itemAEditar)) ? '<button onClick="salvarEdicao()"><i class="fa-regular fa-floppy-disk is-clickable"></i></button>' : '<i class="fa-regular is-clickable fa-pen-to-square editar"></i>'}
+            <i class="fa-solid fa-trash is-clickable deletar"></i>
+          </div>
+        </li>
+      `;
+    }
+  });
+
+  const inputsCheck = document.querySelectorAll('input[type="checkbox"]')
+
+  inputsCheck.forEach(i => {
+    i.addEventListener('click', (evento) => {
+      // parentElement => retorna o elemento pai que esta sendo clicado
+      valorDoElemento = evento.target.parentElement.parentElement.getAttribute('data-value');
+      listaDeItens[valorDoElemento].checar = evento.target.checked;
+      mostrarItem();
+    });
+  });
+
+  const deletarObjetos = document.querySelectorAll(".deletar");
+
+  deletarObjetos.forEach(i => {
+    i.addEventListener('click', (evento) => {
+      // parentElement => retorna o elemento pai que esta sendo clicado
+      valorDoElemento = evento.target.parentElement.parentElement.getAttribute('data-value');
+      // listaDeItens.splice(valorDoElemento,1,{valor: "Limão", checar: false});
+      // listaDeItens.splice(valorDoElemento,0,{valor: "Limão", checar: false});
+      listaDeItens.splice(valorDoElemento,1);
+      mostrarItem();
+    });
+  });
+
+  const editarItens = document.querySelectorAll(".editar");
+
+  editarItens.forEach(i => {
+    i.addEventListener('click', (evento) => {
+      // parentElement => retorna o elemento pai que esta sendo clicado
+      itemAEditar = evento.target.parentElement.parentElement.getAttribute('data-value');
+      mostrarItem();
+    });
   });
 }
 
-const inputCheck = document.querySelectorAll('input[type="checkbox"]');
+function salvarEdicao() {
+  const itemEditado = document.querySelector(`[data-value="${itemAEditar}"] input[type="text"]`);
+  // console.log(itemEditado.value);
+  listaDeItens[itemAEditar].valor = itemEditado.value;
+  itemAEditar = -1;
+  mostrarItem();
+}
 
-inputCheck.forEach((i) => {
-  i.addEventListener("click", (evento) => {
-    // parentElement => retorna o elemento pai que esta sendo clicado
-    const valorDoElemento = evento.target.parentElement.parentElement.getAttrribute("data-value");
-    listaDeItens[valorDoElemento].checar = evento.target.checked;
-  });
-});
+// function mostrarItem() {
+//   ulItens.innerHTML = "";
+//   ulItensComprados.innerHTML = "";
+
+//   listaDeItens.forEach((elemento, index) => {
+//     if (elemento.checar) {
+//       ulItensComprados.innerHTML += `
+//         <li class="item-compra is-flex is-justify-content-space-between" data-value="${index}">
+//           <div>
+//             <input type="checkbox" checked class="is-clickable" />  
+//             <span class="itens-comprados is-size-5">${elemento.valor}</span>
+//           </div>
+//           <div>
+//             <i class="fa-solid fa-trash is-clickable deletar"></i>
+//           </div>
+//         </li>
+//       `; 
+//     } else {
+//       ulItens.innerHTML += `
+//         <li class="item-compra is-flex is-justify-content-space-between" data-value="${index}">
+//           <div>
+//             <input type="checkbox" class="is-clickable" />
+//             <input type="text" class="is-size-5" value="${elemento.valor}"></input>
+//           </div>
+//           <div>
+//             <i class="fa-solid fa-trash is-clickable deletar"></i>
+//           </div>
+//         </li>
+//       `;
+//     }
+//   });
+
+//   const inputCheck = document.querySelectorAll('input[type="checkbox"]');
+  
+//   inputCheck.forEach((i) => {
+//     i.addEventListener("click", (evento) => {
+//       // parentElement => retorna o elemento pai que esta sendo clicado
+//       const valorDoElemento = evento.target.parentElement.parentElement.getAttrribute("data-value");
+//       listaDeItens[valorDoElemento].checar = evento.target.checked;
+//       mostrarItem();
+//     });
+//   });
+  
+//   const deletarObjetos = document.querySelectorAll(".deletar");
+  
+//   deletarObjetos.forEach((i) => {
+//     i.addEventListener("click", (evento) => {
+//       // parentElement => retorna o elemento pai que esta sendo clicado
+//       const valorDoElemento = evento.target.parentElement.parentElement.getAttrribute("data-value");
+//       listaDeItens.splice(valorDoElemento, 1)
+//       mostrarItem();
+//     });
+//   });
+// }
+
